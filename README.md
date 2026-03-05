@@ -1,99 +1,88 @@
-# Smart Permit Review AI Demo
+# Smart Permit Review AI (Multi-Stage Demo)
 
-Front-end-only interactive demo for a permit document review flow.
+Front-end-only simulation of a permit-review copilot with a 5-stage state machine:
+- `IMPORT`
+- `SPLIT`
+- `SCAN`
+- `REVIEW`
+- `FINDINGS`
+
+No backend and no real PDF parsing/review logic are used.
 
 ## Run locally
 
-No build step required.
+```bash
+cd /Users/pavanmreddy/Downloads/hassan
+python3 -m http.server 5173
+```
 
-1. Start a local static server:
-   - `python3 -m http.server 5173`
-2. Open:
-   - `http://localhost:5173`
+Open: `http://localhost:5173`
 
-## Demo flow
+## Architecture
 
-- **Input Package** contains 10 fake permit/city files.
-- Click **Import Files**:
-  - each file card flies to intake,
-  - the **Document Viewer** opens and runs a scanline/sparkle pass,
-  - extraction fields are shown,
-  - queue updates through `Scanned -> Queued`.
-- Review phase runs with progress/status and queue moves `Reviewing -> Done`.
-- Reviewed files appear on the right.
-- Clicking reviewed output opens the same viewer in **Review Mode** with:
-  - `Preview/Redline` toggle,
-  - redline overlays,
-  - linked review sidebar comments that pulse/focus marks.
+- State machine:
+  - `/Users/pavanmreddy/Downloads/hassan/src/state/useFlowMachine.js`
+- Main app orchestration:
+  - `/Users/pavanmreddy/Downloads/hassan/src/app.js`
+- Mock split logic and doc/finding data model:
+  - `/Users/pavanmreddy/Downloads/hassan/src/data/mockPackage.js`
+- Realistic source pages used by split docs:
+  - `/Users/pavanmreddy/Downloads/hassan/assets/pdf-snaps/page-01.png` ... `page-19.png`
+- Stage pages:
+  - `/Users/pavanmreddy/Downloads/hassan/src/pages/ImportPage.js`
+  - `/Users/pavanmreddy/Downloads/hassan/src/pages/SplittingPage.js`
+  - `/Users/pavanmreddy/Downloads/hassan/src/pages/ScanningPage.js`
+  - `/Users/pavanmreddy/Downloads/hassan/src/pages/ReviewingPage.js`
+  - `/Users/pavanmreddy/Downloads/hassan/src/pages/FindingsPage.js`
+- Components:
+  - `/Users/pavanmreddy/Downloads/hassan/src/components/DocViewerTab.js`
+  - `/Users/pavanmreddy/Downloads/hassan/src/components/ScanOverlay.js`
+  - `/Users/pavanmreddy/Downloads/hassan/src/components/RedlineOverlay.js`
+  - `/Users/pavanmreddy/Downloads/hassan/src/components/LogConsole.js`
+  - `/Users/pavanmreddy/Downloads/hassan/src/components/Toast.js`
+  - `/Users/pavanmreddy/Downloads/hassan/src/components/PageRenderers.js`
 
-## Project files
+## Where to edit
 
-- Main page:
-  - `/Users/pavanmreddy/Downloads/hassan/index.html`
-- Main app state/timers/flow:
-  - `/Users/pavanmreddy/Downloads/hassan/app.js`
-- Styling/animations:
-  - `/Users/pavanmreddy/Downloads/hassan/styles.css`
-- Document data model:
-  - `/Users/pavanmreddy/Downloads/hassan/data/documents.js`
-- Real PDF page snapshots used in viewer:
-  - `/Users/pavanmreddy/Downloads/hassan/assets/pdf-snaps/`
-- Extracted PDF comment snippets used in findings:
-  - `/Users/pavanmreddy/Downloads/hassan/data/pdf-comments.js`
-- Viewer logic (scan + review modes):
-  - `/Users/pavanmreddy/Downloads/hassan/components/viewer.js`
+### Split behavior
 
-## Edit the document model and fake content
+Edit:
+- `/Users/pavanmreddy/Downloads/hassan/src/data/mockPackage.js`
 
-### Document list/data model
+Key functions:
+- `splitUploadedFiles(fileNames)`
+- `buildDoc(...)`
+- `makeInitialQueue(docs)`
+- Single-package deterministic split currently maps PDF pages 1-19 into section docs in `SINGLE_PACKAGE_SPLIT`.
 
-Edit `DOCUMENTS` in:
-- `/Users/pavanmreddy/Downloads/hassan/data/documents.js`
+### Doc templates and page visuals
 
-Each doc includes:
-- `id`, `name`, `type`, `size`
-- `pages` (with `label`, `template`, `imageSrc`)
-  - Use `template: "image"` and `imageSrc: "assets/pdf-snaps/page-XX.png"`
-- `extractedFields`
-- `reviewFindings` (with page link + overlay coordinates)
+Edit:
+- `/Users/pavanmreddy/Downloads/hassan/src/components/PageRenderers.js`
 
-### Extracted fields per doc type
+This controls blueprint/checklist/structural/site/detail SVG templates.
 
-Edit `extractedFields` per document in:
-- `/Users/pavanmreddy/Downloads/hassan/data/documents.js`
+### Findings and redline coordinates
 
-### Review findings coordinates/labels
+Edit:
+- `/Users/pavanmreddy/Downloads/hassan/src/data/mockPackage.js`
 
-Edit `reviewFindings` in:
-- `/Users/pavanmreddy/Downloads/hassan/data/documents.js`
+Key area:
+- `makeFindingsForPage(...)`
 
-Coordinate fields are percentages on the page canvas:
+Overlay coordinates are percentage-based:
 - `x`, `y`, `w`, `h`
-- Some finding text is sourced from extracted PDF annotations/comments via `PDF_COMMENTS` in `/Users/pavanmreddy/Downloads/hassan/data/pdf-comments.js`.
 
-### Scan callout text
+### Review logs and rule widget behavior
 
-Edit `SCAN_CALLOUTS` in:
-- `/Users/pavanmreddy/Downloads/hassan/data/documents.js`
+Edit:
+- `/Users/pavanmreddy/Downloads/hassan/src/app.js`
 
-### Status log steps
+Key area:
+- `runReviewSimulation(...)`
 
-Edit `STATUS_STEPS` in:
-- `/Users/pavanmreddy/Downloads/hassan/data/documents.js`
+## Notes
 
-## Host on GitHub Pages
-
-1. Initialize and push:
-   - `git init`
-   - `git add .`
-   - `git commit -m "Permit review viewer + redline demo"`
-   - `git branch -M main`
-   - `git remote add origin <your-repo-url>`
-   - `git push -u origin main`
-2. In GitHub repo: `Settings -> Pages`
-3. Source: `Deploy from a branch`
-4. Branch: `main`, folder `/ (root)`
-5. Save and wait for publish.
-
-Site URL pattern:
-- `https://<your-username>.github.io/<repo-name>/`
+- Upload input accepts single or multiple PDFs for naming/UI only.
+- “Import from Drive” is simulated (no OAuth).
+- “Download reviewed package” is simulated (toast only).
