@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Permit Review AI Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-glow" aria-hidden="true"></div>
+    <main class="app">
+      <header class="header">
+        <div>
+          <p class="eyebrow">Demo Workflow</p>
+          <h1>Permit Document Review Flow</h1>
+          <p class="subhead">Import a city permit package and watch Smart Permit Review AI process it.</p>
+        </div>
+        <div class="controls">
+          <div class="speed-toggle" role="group" aria-label="Demo speed">
+            <button class="speed-btn active" data-speed="normal" type="button">Normal</button>
+            <button class="speed-btn" data-speed="fast" type="button">Fast</button>
+          </div>
+          <button id="importBtn" class="btn btn-primary" type="button">Import Files</button>
+          <button id="resetBtn" class="btn btn-secondary" type="button">Reset</button>
+        </div>
+      </header>
+
+      <section class="grid" aria-live="polite">
+        <section class="column column-input">
+          <h2>Input Package</h2>
+          <p class="column-note">Source permit documents</p>
+          <div id="inputList" class="card-list"></div>
+        </section>
+
+        <section class="column column-ai">
+          <h2>Smart Permit Review AI</h2>
+          <p class="column-note">Automated intake, checks, and markup</p>
+
+          <div class="ai-shell" id="aiShell">
+            <div class="intake-slot" id="intakeSlot">
+              <span>Intake Slot</span>
+            </div>
+
+            <div class="brain-wrap">
+              <div class="brain" id="brainIcon" aria-hidden="true">
+                <svg viewBox="0 0 64 64" role="img" aria-label="AI brain icon">
+                  <path
+                    d="M23 14c-6 0-11 5-11 11 0 4 2 7 5 9-1 5 2 10 7 11 2 3 5 5 9 5s7-2 9-5c5-1 8-6 7-11 3-2 5-5 5-9 0-6-5-11-11-11-1-4-5-7-10-7s-9 3-10 7z"
+                    fill="currentColor"
+                  />
+                  <path d="M32 12v40M22 24h20M20 34h24M24 44h16" stroke="#0b1220" stroke-width="2" />
+                </svg>
+              </div>
+              <p id="aiStateText" class="ai-state">Idle</p>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-track">
+                <div id="progressBar" class="progress-fill"></div>
+              </div>
+              <p id="progressText" class="progress-text">0%</p>
+            </div>
+
+            <div class="queue-wrap">
+              <p class="status-title">Queue</p>
+              <ul id="queueList" class="queue-list"></ul>
+            </div>
+
+            <div class="extraction-wrap">
+              <p class="status-title">Latest Extraction Summary</p>
+              <ul id="extractionList" class="extraction-list">
+                <li class="empty-text">No document scanned yet.</li>
+              </ul>
+            </div>
+
+            <div class="status-log-wrap">
+              <p class="status-title">Status Log</p>
+              <ul id="statusLog" class="status-log"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="column column-output">
+          <h2>Reviewed Output</h2>
+          <p class="column-note">AI-reviewed package and annotations</p>
+          <div id="outputList" class="card-list output-list empty">
+            <p class="empty-text">No reviewed files yet.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <section id="viewerModal" class="viewer-modal" aria-hidden="true">
+      <div class="viewer-scrim" data-close="true"></div>
+      <article class="viewer-shell">
+        <header class="viewer-header">
+          <div>
+            <p class="eyebrow" id="viewerEyebrow">Document Viewer</p>
+            <h3 id="viewerTitle">No document selected</h3>
+          </div>
+          <div class="viewer-header-controls">
+            <div id="viewerModeToggle" class="viewer-toggle hidden" role="group" aria-label="Viewer mode">
+              <button type="button" class="viewer-tab active" data-view="preview">Preview</button>
+              <button type="button" class="viewer-tab" data-view="redline">Redline</button>
+            </div>
+            <button id="viewerCloseBtn" class="icon-btn" type="button" aria-label="Close viewer">✕</button>
+          </div>
+        </header>
+
+        <div class="viewer-body">
+          <aside id="thumbList" class="thumb-list"></aside>
+
+          <section class="page-stage">
+            <div class="page-frame" id="pageFrame">
+              <div id="pageCanvas" class="page-canvas"></div>
+              <div id="scanOverlay" class="scan-overlay" aria-hidden="true">
+                <div class="scanline"></div>
+                <div class="sparkles"></div>
+                <div id="scanCallout" class="scan-callout">Extracting sheet title...</div>
+              </div>
+              <div id="redlineLayer" class="redline-layer"></div>
+            </div>
+          </section>
+
+          <aside class="review-sidebar">
+            <p class="status-title" id="viewerSidebarTitle">Review Comments</p>
+            <div id="reviewList" class="review-list">
+              <p class="empty-text">No findings for this mode.</p>
+            </div>
+          </aside>
+        </div>
+      </article>
+    </section>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
